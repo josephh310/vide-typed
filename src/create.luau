@@ -3,27 +3,23 @@ local Instance = game and Instance or require "../test/mock".Instance :: never
 
 local defaults = require "./defaults"
 local apply = require "./apply"
-local flags = require "./flags"
 
-local ctor_cache = {} :: { [string]: () -> Instance }
-type Props = { [any]: any }
+local ctor_cache = {} :: { [string]: (Props) -> Instance }
 
 setmetatable(ctor_cache :: any, {
     __index = function(self, class)
-        local function ctor(properties: Props): Instance
-            local ok, instance: Instance = pcall(Instance.new, class :: any)
-            if not ok then error(`invalid class name { class }`, 0) end
+        local ok, instance: Instance = pcall(Instance.new, class :: any)
+        if not ok then error(`invalid class name, could not create instance of class { class }`, 0) end
 
-            if flags.defaults then
-                local default: { [string]: unknown }? = defaults[class]
-                if default then
-                    for i, v in default do
-                        (instance :: any)[i] = v
-                    end
-                end
+        local default: { [string]: unknown }? = defaults[class]
+        if default then
+            for i, v in default do
+                (instance :: any)[i] = v
             end
+        end
 
-            return apply(instance, properties)
+        local function ctor(properties: Props): Instance
+            return apply(instance:Clone(), properties)
         end
 
         self[class] = ctor
@@ -43,7 +39,7 @@ local function clone_instance(instance: Instance)
     end
 end
 
-local function create(class_or_instance: string | Instance, props: Props?): ((any) -> Instance) | Instance
+local function create(class_or_instance: string | Instance, props: Props?): ((Props) -> Instance) | Instance
 	local result: (Props) -> Instance
 	if type(class_or_instance) == "string" then
 		result = create_instance(class_or_instance)
@@ -59,55 +55,433 @@ local function create(class_or_instance: string | Instance, props: Props?): ((an
 	return result
 end
 
-return (create :: any) ::
-	( (class: "CanvasGroup") -> (r.vCanvasGroup) -> CanvasGroup )
-&	( (class: "Frame") -> (r.vFrame) -> Frame )
-&	( (class: "ImageButton") -> (r.vImageButton) -> ImageButton )
-&	( (class: "TextButton") -> (r.vTextButton) -> TextButton )
-&	( (class: "ImageLabel") -> (r.vImageLabel) -> ImageLabel )
-&	( (class: "TextLabel") -> (r.vTextLabel) -> TextLabel )
-&	( (class: "ScrollingFrame") -> (r.vScrollingFrame) -> ScrollingFrame )
-&	( (class: "TextBox") -> (r.vTextBox) -> TextBox )
-&	( (class: "VideoFrame") -> (r.vVideoFrame) -> VideoFrame )
-&	( (class: "ViewportFrame") -> (r.vViewportFrame) -> ViewportFrame )
-&	( (class: "BillboardGui") -> (r.vBillboardGui) -> BillboardGui )
-&	( (class: "ScreenGui") -> (r.vScreenGui) -> ScreenGui )
-&	( (class: "AdGui") -> (r.vAdGui) -> AdGui )
-&	( (class: "SurfaceGui") -> (r.vSurfaceGui) -> SurfaceGui )
-&	( (class: "SelectionBox") -> (r.vSelectionBox) -> SelectionBox )
-&	( (class: "BoxHandleAdornment") -> (r.vBoxHandleAdornment) -> BoxHandleAdornment )
-&	( (class: "ConeHandleAdornment") -> (r.vConeHandleAdornment) -> ConeHandleAdornment )
-&	( (class: "CylinderHandleAdornment") -> (r.vCylinderHandleAdornment) -> CylinderHandleAdornment )
-&	( (class: "ImageHandleAdornment") -> (r.vImageHandleAdornment) -> ImageHandleAdornment )
-&	( (class: "LineHandleAdornment") -> (r.vLineHandleAdornment) -> LineHandleAdornment )
-&	( (class: "SphereHandleAdornment") -> (r.vSphereHandleAdornment) -> SphereHandleAdornment )
-&	( (class: "WireframeHandleAdornment") -> (r.vWireframeHandleAdornment) -> WireframeHandleAdornment )
-&	( (class: "ParabolaAdornment") -> (r.vParabolaAdornment) -> ParabolaAdornment )
-&	( (class: "SelectionSphere") -> (r.vSelectionSphere) -> SelectionSphere )
-&	( (class: "ArcHandles") -> (r.vArcHandles) -> ArcHandles )
-&	( (class: "Handles") -> (r.vHandles) -> Handles )
-&	( (class: "SurfaceSelection") -> (r.vSurfaceSelection) -> SurfaceSelection )
-&	( (class: "Path2D") -> (r.vPath2D) -> Path2D )
-&	( (class: "UIAspectRatioConstraint") -> (r.vUIAspectRatioConstraint) -> UIAspectRatioConstraint )
-&	( (class: "UISizeConstraint") -> (r.vUISizeConstraint) -> UISizeConstraint )
-&	( (class: "UITextSizeConstraint") -> (r.vUITextSizeConstraint) -> UITextSizeConstraint )
-&	( (class: "UICorner") -> (r.vUICorner) -> UICorner )
-&	( (class: "UIDragDetector") -> (r.vUIDragDetector) -> UIDragDetector )
-&	( (class: "UIFlexItem") -> (r.vUIFlexItem) -> UIFlexItem )
-&	( (class: "UIGradient") -> (r.vUIGradient) -> UIGradient )
-&	( (class: "UIListLayout") -> (r.vUIListLayout) -> UIListLayout )
-&	( (class: "UIGridLayout") -> (r.vUIGridLayout) -> UIGridLayout )
-&	( (class: "UIPageLayout") -> (r.vUIPageLayout) -> UIPageLayout )
-&	( (class: "UITableLayout") -> (r.vUITableLayout) -> UITableLayout )
-&	( (class: "UIPadding") -> (r.vUIPadding) -> UIPadding )
-&	( (class: "UIScale") -> (r.vUIScale) -> UIScale )
-&	( (class: "UIStroke") -> (r.vUIStroke) -> UIStroke )
-&	( (class: "WorldModel") -> (r.vWorldModel) -> WorldModel )
-&	( (class: "Camera") -> (r.vCamera) -> Camera )
-&	( (class: "Part") -> (r.vPart) -> Part )
-&	( (class: "Model") -> (r.vModel) -> Model )
-&	( (class: "MeshPart") -> (r.vMeshPart) -> MeshPart )
-&	( (class: "Highlight") -> (r.vHighlight) -> Highlight )
-&	( (class: "Folder") -> (r.vFolder) -> Folder )
-&	( (class: "Attachment") -> (r.vAttachment) -> Attachment )
-&	( (class: "ParticleEmitter") -> (r.vParticleEmitter) -> ParticleEmitter )
+type Props = { [any]: any }
+
+type Instances = {
+	AccessoryDescription: AccessoryDescription,
+	Accoutrement: Accoutrement,
+	Accessory: Accessory,
+	Hat: Hat,
+	AdPortal: AdPortal,
+	AdvancedDragger: AdvancedDragger,
+	Animation: Animation,
+	CurveAnimation: CurveAnimation,
+	KeyframeSequence: KeyframeSequence,
+	AnimationController: AnimationController,
+	AnimationRigData: AnimationRigData,
+	Animator: Animator,
+	Annotation: Annotation,
+	WorkspaceAnnotation: WorkspaceAnnotation,
+	Atmosphere: Atmosphere,
+	Attachment: Attachment,
+	Bone: Bone,
+	AudioAnalyzer: AudioAnalyzer,
+	AudioChannelMixer: AudioChannelMixer,
+	AudioChannelSplitter: AudioChannelSplitter,
+	AudioChorus: AudioChorus,
+	AudioCompressor: AudioCompressor,
+	AudioDeviceInput: AudioDeviceInput,
+	AudioDeviceOutput: AudioDeviceOutput,
+	AudioDistortion: AudioDistortion,
+	AudioEcho: AudioEcho,
+	AudioEmitter: AudioEmitter,
+	AudioEqualizer: AudioEqualizer,
+	AudioFader: AudioFader,
+	AudioFilter: AudioFilter,
+	AudioFlanger: AudioFlanger,
+	AudioLimiter: AudioLimiter,
+	AudioListener: AudioListener,
+	AudioPitchShifter: AudioPitchShifter,
+	AudioPlayer: AudioPlayer,
+	AudioReverb: AudioReverb,
+	AudioSearchParams: AudioSearchParams,
+	Backpack: Backpack,
+	RemoteEvent: RemoteEvent,
+	UnreliableRemoteEvent: UnreliableRemoteEvent,
+	WrapDeformer: WrapDeformer,
+	WrapLayer: WrapLayer,
+	WrapTarget: WrapTarget,
+	Beam: Beam,
+	BindableEvent: BindableEvent,
+	BindableFunction: BindableFunction,
+	BodyAngularVelocity: BodyAngularVelocity,
+	BodyForce: BodyForce,
+	BodyGyro: BodyGyro,
+	BodyPosition: BodyPosition,
+	BodyThrust: BodyThrust,
+	BodyVelocity: BodyVelocity,
+	RocketPropulsion: RocketPropulsion,
+	BodyPartDescription: BodyPartDescription,
+	Breakpoint: Breakpoint,
+	Camera: Camera,
+	BodyColors: BodyColors,
+	CharacterMesh: CharacterMesh,
+	Pants: Pants,
+	Shirt: Shirt,
+	ShirtGraphic: ShirtGraphic,
+	Skin: Skin,
+	ClickDetector: ClickDetector,
+	DragDetector: DragDetector,
+	Clouds: Clouds,
+	Configuration: Configuration,
+	AlignOrientation: AlignOrientation,
+	AlignPosition: AlignPosition,
+	AngularVelocity: AngularVelocity,
+	AnimationConstraint: AnimationConstraint,
+	BallSocketConstraint: BallSocketConstraint,
+	HingeConstraint: HingeConstraint,
+	LineForce: LineForce,
+	LinearVelocity: LinearVelocity,
+	PlaneConstraint: PlaneConstraint,
+	Plane: Plane,
+	RigidConstraint: RigidConstraint,
+	RodConstraint: RodConstraint,
+	RopeConstraint: RopeConstraint,
+	CylindricalConstraint: CylindricalConstraint,
+	PrismaticConstraint: PrismaticConstraint,
+	SpringConstraint: SpringConstraint,
+	Torque: Torque,
+	TorsionSpringConstraint: TorsionSpringConstraint,
+	UniversalConstraint: UniversalConstraint,
+	VectorForce: VectorForce,
+	HumanoidController: HumanoidController,
+	SkateboardController: SkateboardController,
+	VehicleController: VehicleController,
+	AirController: AirController,
+	ClimbController: ClimbController,
+	GroundController: GroundController,
+	SwimController: SwimController,
+	ControllerManager: ControllerManager,
+	-- BlockMesh: BlockMesh,
+	CylinderMesh: CylinderMesh,
+	FileMesh: FileMesh,
+	SpecialMesh: SpecialMesh,
+	DataStoreGetOptions: DataStoreGetOptions,
+	DataStoreIncrementOptions: DataStoreIncrementOptions,
+	DataStoreOptions: DataStoreOptions,
+	DataStoreSetOptions: DataStoreSetOptions,
+	DebuggerWatch: DebuggerWatch,
+	Dialog: Dialog,
+	DialogChoice: DialogChoice,
+	Dragger: Dragger,
+	EulerRotationCurve: EulerRotationCurve,
+	ExperienceInviteOptions: ExperienceInviteOptions,
+	ExplorerFilter: ExplorerFilter,
+	Explosion: Explosion,
+	FaceControls: FaceControls,
+	Decal: Decal,
+	Texture: Texture,
+	Hole: Hole,
+	MotorFeature: MotorFeature,
+	Fire: Fire,
+	FloatCurve: FloatCurve,
+	FlyweightService: FlyweightService,
+	CSGDictionaryService: CSGDictionaryService,
+	NonReplicatedCSGDictionaryService: NonReplicatedCSGDictionaryService,
+	Folder: Folder,
+	ForceField: ForceField,
+	FunctionalTest: FunctionalTest,
+	GetTextBoundsParams: GetTextBoundsParams,
+	CanvasGroup: CanvasGroup,
+	Frame: Frame,
+	ImageButton: ImageButton,
+	TextButton: TextButton,
+	ImageLabel: ImageLabel,
+	TextLabel: TextLabel,
+	RelativeGui: RelativeGui,
+	ScrollingFrame: ScrollingFrame,
+	TextBox: TextBox,
+	VideoFrame: VideoFrame,
+	ViewportFrame: ViewportFrame,
+	BillboardGui: BillboardGui,
+	ScreenGui: ScreenGui,
+	GuiMain: GuiMain,
+	AdGui: AdGui,
+	SurfaceGui: SurfaceGui,
+	FloorWire: FloorWire,
+	SelectionBox: SelectionBox,
+	BoxHandleAdornment: BoxHandleAdornment,
+	ConeHandleAdornment: ConeHandleAdornment,
+	CylinderHandleAdornment: CylinderHandleAdornment,
+	ImageHandleAdornment: ImageHandleAdornment,
+	LineHandleAdornment: LineHandleAdornment,
+	SphereHandleAdornment: SphereHandleAdornment,
+	WireframeHandleAdornment: WireframeHandleAdornment,
+	ParabolaAdornment: ParabolaAdornment,
+	SelectionSphere: SelectionSphere,
+	ArcHandles: ArcHandles,
+	Handles: Handles,
+	SurfaceSelection: SurfaceSelection,
+	SelectionPartLasso: SelectionPartLasso,
+	SelectionPointLasso: SelectionPointLasso,
+	Path2D: Path2D,
+	HapticEffect: HapticEffect,
+	HeightmapImporterService: HeightmapImporterService,
+	HiddenSurfaceRemovalAsset: HiddenSurfaceRemovalAsset,
+	Highlight: Highlight,
+	Humanoid: Humanoid,
+	HumanoidDescription: HumanoidDescription,
+	IKControl: IKControl,
+	RotateP: RotateP,
+	RotateV: RotateV,
+	Glue: Glue,
+	ManualGlue: ManualGlue,
+	ManualWeld: ManualWeld,
+	Motor: Motor,
+	Motor6D: Motor6D,
+	Rotate: Rotate,
+	Snap: Snap,
+	VelocityMotor: VelocityMotor,
+	Weld: Weld,
+	Keyframe: Keyframe,
+	KeyframeMarker: KeyframeMarker,
+	PointLight: PointLight,
+	SpotLight: SpotLight,
+	SurfaceLight: SurfaceLight,
+	LocalizationTable: LocalizationTable,
+	Script: Script,
+	LocalScript: LocalScript,
+	ModuleScript: ModuleScript,
+	MarkerCurve: MarkerCurve,
+	MaterialVariant: MaterialVariant,
+	MemoryStoreService: MemoryStoreService,
+	Message: Message,
+	Hint: Hint,
+	NoCollisionConstraint: NoCollisionConstraint,
+	Noise: Noise,
+	OperationGraph: OperationGraph,
+	CornerWedgePart: CornerWedgePart,
+	Part: Part,
+	FlagStand: FlagStand,
+	Seat: Seat,
+	SkateboardPlatform: SkateboardPlatform,
+	SpawnLocation: SpawnLocation,
+	WedgePart: WedgePart,
+	MeshPart: MeshPart,
+	PartOperation: PartOperation,
+	IntersectOperation: IntersectOperation,
+	NegateOperation: NegateOperation,
+	UnionOperation: UnionOperation,
+	TrussPart: TrussPart,
+	VehicleSeat: VehicleSeat,
+	Model: Model,
+	Actor: Actor,
+	HopperBin: HopperBin,
+	Tool: Tool,
+	Flag: Flag,
+	WorldModel: WorldModel,
+	PartOperationAsset: PartOperationAsset,
+	ParticleEmitter: ParticleEmitter,
+	PathfindingLink: PathfindingLink,
+	PathfindingModifier: PathfindingModifier,
+	Player: Player,
+	PluginAction: PluginAction,
+	PluginCapabilities: PluginCapabilities,
+	NumberPose: NumberPose,
+	Pose: Pose,
+	BloomEffect: BloomEffect,
+	BlurEffect: BlurEffect,
+	ColorCorrectionEffect: ColorCorrectionEffect,
+	ColorGradingEffect: ColorGradingEffect,
+	DepthOfFieldEffect: DepthOfFieldEffect,
+	SunRaysEffect: SunRaysEffect,
+	ProximityPrompt: ProximityPrompt,
+	ProximityPromptService: ProximityPromptService,
+	RTAnimationTracker: RTAnimationTracker,
+	ReflectionMetadata: ReflectionMetadata,
+	ReflectionMetadataCallbacks: ReflectionMetadataCallbacks,
+	ReflectionMetadataClasses: ReflectionMetadataClasses,
+	ReflectionMetadataEnums: ReflectionMetadataEnums,
+	ReflectionMetadataEvents: ReflectionMetadataEvents,
+	ReflectionMetadataFunctions: ReflectionMetadataFunctions,
+	ReflectionMetadataClass: ReflectionMetadataClass,
+	ReflectionMetadataEnum: ReflectionMetadataEnum,
+	ReflectionMetadataEnumItem: ReflectionMetadataEnumItem,
+	ReflectionMetadataMember: ReflectionMetadataMember,
+	ReflectionMetadataProperties: ReflectionMetadataProperties,
+	ReflectionMetadataYieldFunctions: ReflectionMetadataYieldFunctions,
+	RemoteFunction: RemoteFunction,
+	RenderingTest: RenderingTest,
+	RotationCurve: RotationCurve,
+	AtmosphereSensor: AtmosphereSensor,
+	BuoyancySensor: BuoyancySensor,
+	ControllerPartSensor: ControllerPartSensor,
+	FluidForceSensor: FluidForceSensor,
+	Sky: Sky,
+	Smoke: Smoke,
+	Sound: Sound,
+	ChorusSoundEffect: ChorusSoundEffect,
+	CompressorSoundEffect: CompressorSoundEffect,
+	DistortionSoundEffect: DistortionSoundEffect,
+	EchoSoundEffect: EchoSoundEffect,
+	EqualizerSoundEffect: EqualizerSoundEffect,
+	FlangeSoundEffect: FlangeSoundEffect,
+	PitchShiftSoundEffect: PitchShiftSoundEffect,
+	ReverbSoundEffect: ReverbSoundEffect,
+	TremoloSoundEffect: TremoloSoundEffect,
+	SoundGroup: SoundGroup,
+	Sparkles: Sparkles,
+	StandalonePluginScripts: StandalonePluginScripts,
+	StarterGear: StarterGear,
+	StudioAttachment: StudioAttachment,
+	StudioCallout: StudioCallout,
+	StyleRule: StyleRule,
+	StyleSheet: StyleSheet,
+	StyleDerive: StyleDerive,
+	StyleLink: StyleLink,
+	SurfaceAppearance: SurfaceAppearance,
+	Team: Team,
+	TeleportOptions: TeleportOptions,
+	TerrainDetail: TerrainDetail,
+	TerrainRegion: TerrainRegion,
+	TestService: TestService,
+	TextChannel: TextChannel,
+	TextChatCommand: TextChatCommand,
+	TextChatMessageProperties: TextChatMessageProperties,
+	BubbleChatMessageProperties: BubbleChatMessageProperties,
+	TrackerStreamAnimation: TrackerStreamAnimation,
+	Trail: Trail,
+	Tween: Tween,
+	UIAspectRatioConstraint: UIAspectRatioConstraint,
+	UISizeConstraint: UISizeConstraint,
+	UITextSizeConstraint: UITextSizeConstraint,
+	UICorner: UICorner,
+	UIDragDetector: UIDragDetector,
+	UIFlexItem: UIFlexItem,
+	UIGradient: UIGradient,
+	UIGridLayout: UIGridLayout,
+	UIListLayout: UIListLayout,
+	UIPageLayout: UIPageLayout,
+	UITableLayout: UITableLayout,
+	UIPadding: UIPadding,
+	UIScale: UIScale,
+	UIStroke: UIStroke,
+	BinaryStringValue: BinaryStringValue,
+	BoolValue: BoolValue,
+	BrickColorValue: BrickColorValue,
+	CFrameValue: CFrameValue,
+	Color3Value: Color3Value,
+	DoubleConstrainedValue: DoubleConstrainedValue,
+	IntConstrainedValue: IntConstrainedValue,
+	IntValue: IntValue,
+	NumberValue: NumberValue,
+	ObjectValue: ObjectValue,
+	RayValue: RayValue,
+	StringValue: StringValue,
+	Vector3Value: Vector3Value,
+	Vector3Curve: Vector3Curve,
+	VideoDeviceInput: VideoDeviceInput,
+	VideoPlayer: VideoPlayer,
+	VirtualInputManager: VirtualInputManager,
+	VisualizationMode: VisualizationMode,
+	VisualizationModeCategory: VisualizationModeCategory,
+	WeldConstraint: WeldConstraint,
+	Wire: Wire,
+}
+
+type function getvideproperties(instance, instancetype)
+	local properties = {}
+	local nil_type = types.singleton(nil)
+
+	local function is_signal(value: type)
+		if not (value:is("class") or value:is("table")) then
+			return false
+		end
+
+		for key, value in value:properties() do
+			if key:value() == "Connect" and value.read.tag == "function" then
+				return value.read
+			end
+		end
+
+		return false
+	end
+
+	local function insert(object)
+		if object:readparent() == nil then return end
+		for key, value in object:properties() do
+			local is_a_signal = is_signal(value.read)
+			if is_a_signal and value.read:is("table") then -- luau-lsp
+				local connect_fn = is_a_signal
+				local params = connect_fn:parameters()
+				table.remove(params.head, 1)
+
+				local type = types.unionof(
+					nil_type,
+					types.newfunction(params)
+				)
+
+				properties[key] = { read = type }
+			elseif is_a_signal and value.read:is("class") then -- roblox-studio
+				local connect_fn = is_a_signal
+				local params = connect_fn:parameters()
+				table.remove(params.head, 1)
+
+				local type = types.unionof(
+					nil_type,
+					types.newfunction(params)
+				)
+
+				properties[key] = { read = type }
+			elseif value.read:is("function") or value.read:is("intersection") then
+				continue
+			elseif value.write then
+
+				local value = value.write
+
+				local type = types.unionof(
+					types.newfunction({}, { head = { value } }),
+					value,
+					nil_type
+				)
+
+				properties[key] = { read = type }
+			end
+		end
+
+		insert(object:readparent())
+	end
+	insert(instance)
+
+	local vide_props = types.newtable(properties)
+	local vide_action = types.newtable({
+		[types.singleton "priority"] = { read = types.number },
+		[types.singleton "callback"] = { read = types.newfunction({ head = { instancetype } }) }
+	})
+
+	local function_returns_child = types.newfunction()
+	local nested_table_or_function_or_child = types.newtable()
+	local union = types.unionof( instancetype, function_returns_child, nested_table_or_function_or_child )
+
+	nested_table_or_function_or_child:setindexer(types.number, union)
+	function_returns_child:setreturns({ union })
+
+	vide_props:setindexer(
+		types.number,
+		types.unionof(
+			vide_action,
+			instancetype,
+			function_returns_child,
+			vide_props,
+			nil_type
+		)
+	)
+
+	return vide_props
+end
+
+type function getvideinstance(instancename, instances, instancetype)
+	-- assert(instancename:is("generic") == false, "received generic")
+	if instancename:is("string") or instancename:is("generic") then return instancetype end
+
+	for key, value in instances:properties() do
+		if key:value() == instancename:value() then return value.read end
+	end
+
+	return instancetype
+end
+
+local c = (create :: any) ::
+	<T>(keyof<Instances> & T) -> (getvideproperties<getvideinstance<T, Instances, Instance>, Instance>) -> getvideinstance<T, Instances, Instance>
+
+return c
