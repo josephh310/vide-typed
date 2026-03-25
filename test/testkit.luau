@@ -141,9 +141,10 @@ end
 local function CASE(name: string)
     assert(test, "no active test")
 
-    local case = {
+    local case: Case = {
         name = name,
-        result = NONE
+        result = NONE,
+        line = nil,
     }
 
     test.case = case
@@ -222,7 +223,7 @@ local function FINISH(): boolean
     end
 
     print(color.gray(string.format(
-        `{passed_cases}/{total_cases} test cases passed in %.3f ms.`,
+        `{passed_cases}/{total_cases} test cases passed in %.3f ms.` :: any,
         duration*1e3
     )))
 
@@ -305,7 +306,7 @@ local function BENCH(name: string, fn: () -> ())
         end
         
         print(string.format(
-            `%s %s %s %s{WALL} %s`,
+            `%s %s %s %s{WALL} %s` :: any,
             color.gray(tostring(round(d))),
             d_unit,
             color.gray(tostring(round(a))),
@@ -405,7 +406,7 @@ end
 -- Equality
 --------------------------------------------------------------------------------
 
-local function shallow_eq(a: {}, b: {}): boolean
+local function shallow_eq(a: { [any]: any }, b: { [any]: any }): boolean
     if #a ~= #b then return false end
 
     for i, v in next, a do
@@ -423,7 +424,7 @@ local function shallow_eq(a: {}, b: {}): boolean
     return true
 end
 
-local function deep_eq(a: {}, b: {}): boolean
+local function deep_eq(a: { [any]: any }, b: { [any]: any }): boolean
     if #a ~= #b then return false end
 
     for i, v in next, a do

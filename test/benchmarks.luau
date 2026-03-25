@@ -1,7 +1,7 @@
 local testkit = require("./testkit")
 local BENCH, START = testkit.benchmark()
 
-local vide = require "../../vide"
+local vide = require "../init"
 local source = vide.source
 local derive = vide.derive
 local effect = vide.effect
@@ -238,7 +238,7 @@ ROOT_BENCH("bind property", function()
         })
     end
 
-    return nil
+    return
 end)
 
 ROOT_BENCH("update binding", function()
@@ -255,7 +255,7 @@ ROOT_BENCH("update binding", function()
         src(i)
     end
 
-    return nil
+    return
 end)
 
 TITLE "switch()"
@@ -263,13 +263,13 @@ TITLE "switch()"
 ROOT_BENCH("switch()", function()
     local M = 2^8
 
-    local map = {}
+    local map: { [number]: () -> number } = {}
     for i = 1, M do
         map[i] = function() return i end
     end
 
     local input = source(0)
-    vide.switch(input)(map)
+    vide.switch(input)(map :: any)
 
     for i = 1, START(N) do
         input(bit32.band(i, M - 1) + 1) -- i % m + 1
@@ -295,7 +295,7 @@ ROOT_BENCH("indexes() all new", function()
         return {}
     end)
 
-    return nil
+    return
 end)
 
 ROOT_BENCH("indexes() no change", function()
@@ -315,7 +315,7 @@ ROOT_BENCH("indexes() no change", function()
 
     src(data)
 
-    return nil
+    return
 end)
 
 ROOT_BENCH("indexes() all change", function()
@@ -361,7 +361,7 @@ ROOT_BENCH("indexes() all remove", function()
 
     src(data)
 
-    return nil
+    return
 end)
 
 TITLE "values()"
@@ -376,12 +376,12 @@ ROOT_BENCH("values() all new", function()
     local src = source(data)
 
     START(N)
-    
+
     local _list = values(src, function(v, i)
         return {}
     end)
 
-    return nil
+    return
 end)
 
 ROOT_BENCH("values() no change", function()
@@ -455,7 +455,7 @@ ROOT_BENCH("set context", function()
     local ctx = context()
 
     for i = 1, START(N) do
-        ctx(i, function() end)
+        (ctx :: any)(i, function() end)
     end
 end)
 
@@ -468,7 +468,7 @@ ROOT_BENCH("get context (depth=1)", function()
         end
     end
 
-    ctx(1, function()
+    (ctx :: any)(1, function()
         run()
     end)
 end)
@@ -490,7 +490,7 @@ ROOT_BENCH(`get context (depth={depth})`, function()
             return nil
         end)
     end
-    
+
     local f = run
     for i = 1, depth - 1 do
         local f_inner = f
@@ -499,7 +499,7 @@ ROOT_BENCH(`get context (depth={depth})`, function()
         end
     end
 
-    ctx(1, function()
+    (ctx :: any)(1, function()
         f()
     end)
 end)
@@ -540,8 +540,8 @@ ROOT_BENCH("spring step", function()
 
         vide.step(1/60)
 
-        return nil
+        return
     end)
 end)
 
-return nil
+return
