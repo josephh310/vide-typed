@@ -92,7 +92,7 @@ local function switch_map<K, Obj>(
                         destroy = destroy,
                         object = object,
                         delay = delay or 0,
-                        present = present,
+                        present = present :: any,
                         timeout = nil
                     }
                 end
@@ -105,9 +105,9 @@ local function switch_map<K, Obj>(
     return output
 end
 
-local function switch<K, Obj>(input: Source<K>): (map: Map<K, Component<Obj>>) -> Source<nil | Obj | Array<Obj>>
+local function switch<K, Obj>(input: Source<K>): (map: Map<K, () -> Obj>) -> (() -> Obj?)
     return function(map)
-        return switch_map(input, map)
+        return switch_map(input, map :: any) :: any
     end
 end
 

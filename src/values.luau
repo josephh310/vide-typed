@@ -10,7 +10,7 @@ type Source<T> = () -> T
 
 local function values<K, V, Obj>(
     input: Source<Map<K, V>>,
-    component: (V, Source<K>, Source<boolean>) -> (Obj, number?)
+    component: (V, Source<K>) -> Obj
 ): Source<Array<Obj>>
     local update_count = 0
     local scopes = {} :: Map<V, {
@@ -63,7 +63,7 @@ local function values<K, V, Obj>(
 
                 local delay = nil :: number?
                 local destroy, object = branch(function()
-                    local object, t = component(v, index_source, present)
+                    local object, t = (component :: any)(v, index_source, present)
                     delay = t
                     return object
                 end)
@@ -76,10 +76,10 @@ local function values<K, V, Obj>(
                     destroy = destroy,
                     object = object,
                     index = i,
-                    index_source = index_source,
+                    index_source = index_source :: any,
                     count = count,
                     delay = delay or 0,
-                    present = present,
+                    present = present :: any,
                     timeout = nil,
                 }
             else -- update scope

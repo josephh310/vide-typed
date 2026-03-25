@@ -1,4 +1,4 @@
-local flags = require "./flags"
+local _flags = require "./flags"
 local branch = require "./branch"
 local source = require "./source"
 local effect = require "./effect"
@@ -10,7 +10,7 @@ type Source<T> = () -> T
 
 local function indexes<K, V, Obj>(
     input: Source<Map<K, V>>,
-    component: (Source<V>, K, Source<boolean>) -> (Obj, number?)
+    component: (Source<V>, K) -> Obj
 ): Source<Array<Obj>>
     local update_count = 0
     local scopes = {} :: Map<K, {
@@ -53,7 +53,7 @@ local function indexes<K, V, Obj>(
 
                 local delay = nil :: number?
                 local destroy, object = branch(function()
-                    local object, t = component(value_source, i, present)
+                    local object, t = (component :: any)(value_source, i, present)
                     delay = t
                     return object
                 end)
@@ -69,7 +69,7 @@ local function indexes<K, V, Obj>(
                     value_source = value_source,
                     count = count,
                     delay = delay or 0,
-                    present = present,
+                    present = present :: any,
                     timeout = nil,
                 }
             else -- update scope
