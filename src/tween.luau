@@ -1,17 +1,6 @@
 local easings = require "./easings"
 
-export type EasingStyle =
-	"lerp"
-	| "sine_ease_in" | "sine_ease_out" | "sine_ease_inout"
-	| "quad_ease_in" | "quad_ease_out" | "quad_ease_inout"
-	| "cubic_ease_in" | "cubic_ease_out" | "cubic_ease_inout"
-	| "quart_ease_in" | "quart_ease_out" | "quart_ease_inout"
-	| "quint_ease_in" | "quint_ease_out" | "quint_ease_inout"
-	| "expo_ease_in" | "expo_ease_out" | "expo_ease_inout"
-	| "circ_ease_in" | "circ_ease_out" | "circ_ease_inout"
-	| "back_ease_in" | "back_ease_out" | "back_ease_inout"
-	| "elastic_ease_in" | "elastic_ease_out" | "elastic_ease_inout"
-	| "bounce_ease_in" | "bounce_ease_out" | "bounce_ease_inout"
+export type EasingStyle = keyof<typeof(easings)>
 
 export type TweenConfig = {
 	time: number?,
@@ -245,10 +234,5 @@ local function update_tween_sources(dt: number)
 end
 
 return function()
-	return tween :: (<T>(source: () -> T, config: TweenConfig) -> () -> T)
-		& (<T>(source: () -> T, config: {[string]: any}) -> () -> T)
-		& (<T>(source: () -> T) -> () -> T),
-	function(dt: number)
-		update_tween_sources(dt)
-	end
+	return tween :: (<T>(source: () -> T, config: TweenConfig) -> () -> T), function(dt: number) update_tween_sources(dt) end
 end
