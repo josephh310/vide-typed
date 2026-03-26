@@ -17,7 +17,7 @@ local show = require "./show"
 local indexes = require "./indexes"
 local values = require "./values"
 local spring, update_springs = require "./spring"()
-local tween = require "./tween"()
+local tween, update_tweens = require "./tween"()
 local action = require "./action"()
 local changed = require "./changed"
 local flags = require "./flags"
@@ -120,6 +120,13 @@ local function step(dt: number)
     end
 
     update_springs(dt)
+
+    if game then
+        debug.profileend()
+        debug.profilebegin("VIDE TWEEN")
+    end
+
+    update_tweens(dt)
 
     if game then
         debug.profileend()
