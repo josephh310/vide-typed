@@ -1,5 +1,5 @@
-name = "josephh310/vide-typed"
-version = "0.4.3"
+name = "josephh310/vide_typed"
+version = "0.4.4"
 description = "Vide with types, fixed for the new luau version"
 authors = ["centau"]
 license = "MIT"
