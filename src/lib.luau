@@ -17,6 +17,7 @@ local show = require "./show"
 local indexes = require "./indexes"
 local values = require "./values"
 local spring, update_springs = require "./spring"()
+local tween = require "./tween"()
 local action = require "./action"()
 local changed = require "./changed"
 local flags = require "./flags"
@@ -133,35 +134,38 @@ end)
 local vide = {
     version = version,
 
-    -- core
-    root = root,
-    mount = mount,
-    create = create,
-    source = source,
-    effect = effect,
-    derive = derive,
-    switch = switch,
-    show = show,
-    indexes = indexes,
-    values = values,
+	-- core
+	root = root,
+	--branch = branch,
+	mount = mount,
+	create = create,
+	source = source,
+	effect = effect,
+	derive = derive,
+	switch = switch,
+	show = show,
+	indexes = indexes,
+	values = values,
 
-    -- util
-    cleanup = cleanup,
-    untrack = untrack,
-    read = read,
-    batch = batch,
-    context = context,
+	-- util
+	cleanup = cleanup,
+	untrack = untrack,
+	read = read,
+	batch = batch,
+	context = context,
 
-    -- animations
-    spring = spring,
+	-- animations
+	spring = spring,
+	tween = tween,
 
-    -- actions
-    action = action,
-    changed = changed,
+	-- actions
+	action = action,
+	changed = changed,
 
-    -- flags
-    strict = (nil :: any) :: boolean,
-    defer_nested_properties = (nil :: any) :: boolean,
+	-- flags
+	strict = (nil :: any) :: boolean,
+	defaults = (nil :: any) :: boolean,
+	defer_nested_properties = (nil :: any) :: boolean,
 
     -- temporary
     apply = function<T>(instance: T & Instance)
