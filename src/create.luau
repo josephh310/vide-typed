@@ -457,7 +457,7 @@ type function getvideproperties(instance, instancetype)
 	local nested_table_or_function_or_child = types.newtable()
 	local union = types.unionof( instancetype, function_returns_child, nested_table_or_function_or_child )
 
-	nested_table_or_function_or_child:setreadindexer(types.number, union)
+	nested_table_or_function_or_child:setindexer(types.number, union)
 	function_returns_child:setreturns({ types.unionof(union, nil_type) })
 
 	vide_props:setindexer(
